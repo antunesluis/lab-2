@@ -19,7 +19,7 @@ typedef struct _doubly_linked_list {
 } DoublyLinkedList, List;
 
 
-Node* Node_crete(int val) {
+Node* Node_crete(Team* val) {
     Node* node = (Node*)calloc(1, sizeof(Node));
     node->prev = NULL;
     node->next = NULL;
@@ -97,7 +97,7 @@ void List_print(const List* L) {
     printf("L -> ");
 
     while (p != NULL) {
-        printf("%d -> ", p->val);
+        printf("%d -> ", p->val->name);
         p = p->next;
     }
     printf("NULL\n");

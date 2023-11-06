@@ -7,17 +7,15 @@
 typedef struct _doubly_node DoubliNode, Node;
 typedef struct _doubly_linked_list DoublyLinkedList, List;
 
-Node* Node_crete(int val);
-
+Node* Node_crete(Team* val);
 List* List_create();
 void List_destroy(List** L_ref);
 bool List_is_empty(const List* L);
-void List_add_first(List* L, int val);
-void List_add_last(List* L, int val);
+void List_add_first(List* L, Team* val);
+void List_add_last(List* L, Team* val);
 void List_print(const List* L);
 void List_inverted_print(const List* L);
-void List_remove(List* L, int val);
-void remove_from_head(List* L, int val);
+void List_remove(List* L, Team* val);
 
 size_t List_size(const List* L);
 int List_first_val(const List* L);
