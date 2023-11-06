@@ -48,9 +48,20 @@ typedef struct _statistics {
     unsigned int fouls;
 } Statistics;
 
-void create_championship(unsigned int matches, Championship* c) {
+Championship* create_championship(unsigned int matches) {
+    Championship* c = (Championship*)calloc(1, sizeof(Championship));
     c->matches = matches;
     c->rounds = log2(matches);
     c->teams = List_create();
     return c;
 }
+
+void create_team(Championship* c, const char* name, const char* stadium, const char* city) {
+    Team* team = (Team*)calloc(1, sizeof(Team));
+    team->name = strdup(name);
+    team->stadium = strdup(stadium);
+    team->city = strdup(city);
+
+    List_add_last(c, team);
+}
+
