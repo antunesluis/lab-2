@@ -1,9 +1,45 @@
-#include "list.h"
-#include "football_league.h"
+#include "championship.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h> 
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+
+typedef struct _statistics {
+    unsigned int goals_scored;
+    unsigned int goals_conceded;
+    unsigned int yellow_cards;
+    unsigned int red_cards;
+    unsigned int fouls;
+} Statistics;
+
+
+typedef struct _player {
+    Position position;
+    Statistics stats;
+    char* name;
+    unsigned int age;
+} Player;
+
+
+typedef struct _team {
+    Statistics stats;
+    Player* players[25];
+    unsigned int n_players;
+    char* coach;
+    char* name;
+    char* stadium;
+    char* city;
+} Team;
+
+
+typedef struct _championship {
+    List* list_teams;
+    unsigned int rounds;
+    unsigned int matches;
+} Championship;
+
 
 typedef struct _doubly_node {
     Team* val;
@@ -19,7 +55,7 @@ typedef struct _doubly_linked_list {
 } DoublyLinkedList, List;
 
 
-Node* Node_crete(Team* val) {
+Node* node_crete(Team* val) {
     Node* node = (Node*)calloc(1, sizeof(Node));
     node->prev = NULL;
     node->next = NULL;
@@ -28,7 +64,7 @@ Node* Node_crete(Team* val) {
     return node;
 }
 
-List* List_create() {
+List* list_create() {
     List* L = (List*)calloc(1, sizeof(List));
     L->begin = NULL;
     L->end = NULL;
@@ -37,7 +73,7 @@ List* List_create() {
     return L;
 }
 
-void List_destroy(List** L_ref) {
+void list_destroy(List** L_ref) {
     List* L = *L_ref;
 
     Node* p = L->begin;
@@ -53,44 +89,44 @@ void List_destroy(List** L_ref) {
     *L_ref = NULL;
 }
 
-bool List_is_empty(const List* L) {
+bool list_is_empty(const List* L) {
     return L->size == 0;
 }
 
-void List_add_first(List* L, Team* val) {
-    Node* p = Node_crete(val);
+void list_add_first(List* L, Team* val) {
+    Node* p = node_crete(val);
     p->next = L->begin;
 
-    if (List_is_empty(L)) {
+    if (list_is_empty(L)) {
         L->end = p;
     }
     else {
         L->begin->prev = p;
     }
 
-    // List_is_empty(L) ? (L->end = p) : (L->begin->prev = p); 
+    // list_is_empty(L) ? (L->end = p) : (L->begin->prev = p); 
     L->begin = p;
     L->size++;
 
 }
 
-void List_add_last(List* L, Team* val) {
-    Node* p = Node_crete(val);
+void list_add_last(List* L, Team* val) {
+    Node* p = node_crete(val);
     p->prev = L->end;
 
-    if (List_is_empty(L)) {
+    if (list_is_empty(L)) {
         L->begin = p;
     }
     else {
         L->end->next = p;
     }
 
-    // List_is_empty(L) ? (L->begin = p) : (L->end->prev = p);
+    // list_is_empty(L) ? (L->begin = p) : (L->end->prev = p);
     L->end = p;
     L->size++;
 }
 
-void List_print(const List* L) {
+void list_print(const List* L) {
     Node* p = L->begin;
 
     printf("\nSize: %lu\n", L->size);
@@ -98,11 +134,9 @@ void List_print(const List* L) {
 
     while (p != NULL) {
         Team* team = p->val;
-        printf("Team Name: %s\n", get_team_name(team));
-        printf("Stadium: %s\n", get_team_stadium(team));
-        printf("City: %s\n", get_team_city(team));
-
-        // Imprima mais informações sobre a equipe, se necessário
+        printf("Team Name: %s\n", team->name);
+        printf("Stadium: %s\n", team->stadium);
+        printf("City: %s\n", team->city);
 
         p = p->next;
         puts("");
@@ -113,13 +147,13 @@ void List_print(const List* L) {
         printf("List is empty\n");
     }
     else {
-        printf("L->end = %s\n", get_team_name(L->end->val));
+        printf("L->end = %s\n", L->end->val->name);
     }
     puts("");
 }
 
 
-void List_inverted_print(const List* L) {
+void list_inverted_print(const List* L) {
     Node* p = L->end;
 
     printf("\nSize: %lu\n", L->size);
@@ -127,9 +161,9 @@ void List_inverted_print(const List* L) {
 
     while (p != NULL) {
         Team* team = p->val;
-        printf("Team Name: %s\n", get_team_name(team));
-        printf("Stadium: %s\n", get_team_stadium(team));
-        printf("City: %s\n", get_team_city(team));
+        printf("Team Name: %s\n", team->name);
+        printf("Stadium: %s\n", team->stadium);
+        printf("City: %s\n", team->city);
 
         // Imprima mais informações sobre a equipe, se necessário
 
@@ -141,13 +175,13 @@ void List_inverted_print(const List* L) {
         printf("List is empty\n");
     }
     else {
-        printf("L->begin = %s\n", get_team_name(L->begin->val));
+        printf("L->begin = %s\n", L->begin->val->name);
     }
     puts("");
 }
 
 void List_remove(List* L, Team* val) {
-    if (List_is_empty(L)) {
+    if (list_is_empty(L)) {
         return;
     }
 
@@ -197,7 +231,7 @@ void List_remove(List* L, Team* val) {
 }
 
 void check_empty_list(const List* L, const char* function_name) {
-    if (List_is_empty(L)) {
+    if (list_is_empty(L)) {
         fprintf(stderr, "ERROR in '%s'\n", function_name);
         fprintf(stderr, "List is empty\n");
         exit(EXIT_FAILURE);
@@ -235,4 +269,56 @@ Team* List_get_val(const List* L, int index) {
     }
 
     return p->val;
+}
+
+void initialize_stats(Statistics* stats) {
+    stats->goals_scored = 0;
+    stats->goals_conceded = 0;
+    stats->yellow_cards = 0;
+    stats->red_cards = 0;
+    stats->fouls = 0;
+}
+
+Championship* create_championship(unsigned int matches) {
+    Championship* c = (Championship*)calloc(1, sizeof(Championship));
+    c->matches = matches;
+    c->rounds = 5; //log2(matches);
+    c->list_teams = list_create();
+    return c;
+}
+
+Team* create_team(Championship* c, const char* name, const char* stadium, const char* city, const char* coach) {
+    Team* team = (Team*)calloc(1, sizeof(Team));
+    team->name = strdup(name);
+    team->stadium = strdup(stadium);
+    team->city = strdup(city);
+    team->coach = strdup(coach);
+    team->n_players = 0;
+
+    initialize_stats(&(team->stats));
+    list_add_last(c->list_teams, team);
+
+    return team;
+}
+
+void add_player(Team* team, char* name, unsigned int age, Position position) {
+    Player* player = (Player*)calloc(1, sizeof(Player));
+    player->name = strdup(name);
+    player->age = age;
+    player->position = position;
+
+    initialize_stats(&(player->stats));
+
+    if (team->n_players < 25) {
+        team->players[team->n_players] = player;
+        team->n_players++;
+    }
+}
+
+void remove_team(List* L, Team* team) {
+    return List_remove(L, team);
+}
+
+List* get_champ_teams(Championship* c) {
+    return c->list_teams;
 }

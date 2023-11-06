@@ -6,6 +6,7 @@
         "stdlib.h": "c",
         "football_league.h": "c",
         "stddef.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "string.h": "c"
     }
 }

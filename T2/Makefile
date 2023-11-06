@@ -12,7 +12,8 @@ all: libed myapps
 
 libed: \
 	$(OBJ)/football_league.o \
-	$(OBJ)/list.o 
+	$(OBJ)/list.o \
+	$(OBJ)/championship.o
 	ar -rcs $(LIB)/libed.a $(OBJ)/*.o 
 
 myapps: clean_apps \
