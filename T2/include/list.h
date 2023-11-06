@@ -1,11 +1,14 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include "football_league.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 
 typedef struct _doubly_node DoubliNode, Node;
 typedef struct _doubly_linked_list DoublyLinkedList, List;
+typedef struct _team Team;
 
 Node* Node_crete(Team* val);
 List* List_create();
@@ -18,8 +21,8 @@ void List_inverted_print(const List* L);
 void List_remove(List* L, Team* val);
 
 size_t List_size(const List* L);
-int List_first_val(const List* L);
-int List_last_val(const List* L);
-int List_get_val(const List* L, int index);
+Team* List_first_val(const List* L);
+Team* List_last_val(const List* L);
+Team* List_get_val(const List* L, int index);
 
 #endif

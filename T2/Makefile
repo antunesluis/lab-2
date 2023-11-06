@@ -11,8 +11,8 @@ LIBS = -lm -led -L $(LIB)
 all: libed myapps
 
 libed: \
-	$(OBJ)/list.o \
-	$(OBJ)/football_league.o
+	$(OBJ)/football_league.o \
+	$(OBJ)/list.o 
 	ar -rcs $(LIB)/libed.a $(OBJ)/*.o 
 
 myapps: clean_apps \

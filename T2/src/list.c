@@ -57,7 +57,7 @@ bool List_is_empty(const List* L) {
     return L->size == 0;
 }
 
-void List_add_first(List* L, int val) {
+void List_add_first(List* L, Team* val) {
     Node* p = Node_crete(val);
     p->next = L->begin;
 
@@ -74,7 +74,7 @@ void List_add_first(List* L, int val) {
 
 }
 
-void List_add_last(List* L, int val) {
+void List_add_last(List* L, Team* val) {
     Node* p = Node_crete(val);
     p->prev = L->end;
 
@@ -94,45 +94,58 @@ void List_print(const List* L) {
     Node* p = L->begin;
 
     printf("\nSize: %lu\n", L->size);
-    printf("L -> ");
+    printf("List of Teams:\n");
 
     while (p != NULL) {
-        printf("%d -> ", p->val->name);
+        Team* team = p->val;
+        printf("Team Name: %s\n", get_team_name(team));
+        printf("Stadium: %s\n", get_team_stadium(team));
+        printf("City: %s\n", get_team_city(team));
+
+        // Imprima mais informações sobre a equipe, se necessário
+
         p = p->next;
+        puts("");
     }
-    printf("NULL\n");
 
     if (L->end == NULL) {
-        printf("L->end = NULL\n");
+        printf("List is empty\n");
     }
     else {
-        printf("L->end = %d\n", L->end->val);
+        printf("L->end = %s\n", get_team_city(L->end->val));
     }
     puts("");
 }
+
 
 void List_inverted_print(const List* L) {
     Node* p = L->end;
 
     printf("\nSize: %lu\n", L->size);
-    printf("L ->end -> ");
+    printf("List of Teams (Inverted Order):\n");
 
     while (p != NULL) {
-        printf("%d -> ", p->val);
+        Team* team = p->val;
+        printf("Team Name: %s\n", get_team_name(team));
+        printf("Stadium: %s\n", get_team_stadium(team));
+        printf("City: %s\n", get_team_city(team));
+
+        // Imprima mais informações sobre a equipe, se necessário
+
         p = p->prev;
+        puts("");
     }
-    printf("NULL\n");
 
     if (L->end == NULL) {
-        printf("L->begin = NULL\n");
+        printf("List is empty\n");
     }
     else {
-        printf("L->begin = %d\n", L->begin->val);
+        printf("L->begin = %s\n", get_team_city(L->begin->val));
     }
     puts("");
 }
 
-void List_remove(List* L, int val) {
+void List_remove(List* L, Team* val) {
     if (List_is_empty(L)) {
         return;
     }
@@ -195,17 +208,17 @@ size_t List_size(const List* L) {
     return L->size;
 }
 
-int List_first_val(const List* L) {
+Team* List_first_val(const List* L) {
     check_empty_list(L, "List_first_val");
     return L->begin->val;
 }
 
-int List_last_val(const List* L) {
+Team* List_last_val(const List* L) {
     check_empty_list(L, "List_last_val");
     return L->end->val;
 }
 
-int List_get_val(const List* L, int index) {
+Team* List_get_val(const List* L, int index) {
     check_empty_list(L, "List_get_val");
 
     if (index < 0 || index >= L->size) {
