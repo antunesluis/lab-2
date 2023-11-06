@@ -112,3 +112,7 @@ char* get_team_city(Team* team) {
 List* get_champ_teams(Championship* c) {
     return c->teams;
 }
+
+void remove_team(List* L, Team* team) {
+    return List_remove(L, team);
+}

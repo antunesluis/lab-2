@@ -33,5 +33,6 @@ List* get_champ_teams(Championship* c);
 
 void add_coach(Team* team, const char* name);
 void add_player(Team* team, char* name, unsigned int age, Position position);
+void remove_team(List* L, Team* team);
 
 #endif

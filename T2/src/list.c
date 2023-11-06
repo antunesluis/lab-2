@@ -106,13 +106,14 @@ void List_print(const List* L) {
 
         p = p->next;
         puts("");
+        printf("|\nV\n\n");
     }
 
     if (L->end == NULL) {
         printf("List is empty\n");
     }
     else {
-        printf("L->end = %s\n", get_team_city(L->end->val));
+        printf("L->end = %s\n", get_team_name(L->end->val));
     }
     puts("");
 }
@@ -140,7 +141,7 @@ void List_inverted_print(const List* L) {
         printf("List is empty\n");
     }
     else {
-        printf("L->begin = %s\n", get_team_city(L->begin->val));
+        printf("L->begin = %s\n", get_team_name(L->begin->val));
     }
     puts("");
 }
@@ -174,7 +175,6 @@ void List_remove(List* L, Team* val) {
         while (p != NULL) {
             if (p->val == val) {
                 p->prev->next = p->next;
-
                 // caso 3: o elemento está no final da lista
                 if (L->end == p) {
                     L->end = p->prev;
@@ -193,6 +193,7 @@ void List_remove(List* L, Team* val) {
             }
         }
     }
+    free(val);
 }
 
 void check_empty_list(const List* L, const char* function_name) {
