@@ -13,8 +13,6 @@ typedef enum {
     Forward
 } Position;
 
-
-typedef enum Position;
 typedef struct _team Team;
 typedef struct _statistics Statistics;
 typedef struct _championship Championship;

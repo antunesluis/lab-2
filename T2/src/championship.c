@@ -25,7 +25,7 @@ typedef struct _player {
 
 typedef struct _team {
     Statistics stats;
-    Player* players[25];
+    Player** players;
     unsigned int n_players;
     char* coach;
     char* name;
@@ -129,14 +129,24 @@ void list_add_last(List* L, Team* val) {
 void list_print(const List* L) {
     Node* p = L->begin;
 
-    printf("\nSize: %lu\n", L->size);
-    printf("List of Teams:\n");
+    printf("Numero de times: %lu\n", L->size);
 
     while (p != NULL) {
         Team* team = p->val;
-        printf("Team Name: %s\n", team->name);
-        printf("Stadium: %s\n", team->stadium);
-        printf("City: %s\n", team->city);
+        printf("  Team Name: %s\n", team->name);
+        printf("  Stadium: %s\n", team->stadium);
+        printf("  City: %s\n", team->city);
+
+        if (team->n_players > 0) {
+            printf("  Players:\n");
+            for (unsigned int i = 0; i < team->n_players; i++) {
+                Player* player = team->players[i];
+                printf("    Player Name: %s\n", player->name);
+                printf("    Position: %d\n", player->position);
+                printf("    Age: %u\n", player->age);
+                puts("");
+            }
+        }
 
         p = p->next;
         puts("");
@@ -164,8 +174,6 @@ void list_inverted_print(const List* L) {
         printf("Team Name: %s\n", team->name);
         printf("Stadium: %s\n", team->stadium);
         printf("City: %s\n", team->city);
-
-        // Imprima mais informações sobre a equipe, se necessário
 
         p = p->prev;
         puts("");
@@ -289,6 +297,7 @@ Championship* create_championship(unsigned int matches) {
 
 Team* create_team(Championship* c, const char* name, const char* stadium, const char* city, const char* coach) {
     Team* team = (Team*)calloc(1, sizeof(Team));
+    team->players = (Player**)calloc(25, sizeof(Player*));
     team->name = strdup(name);
     team->stadium = strdup(stadium);
     team->city = strdup(city);
@@ -301,7 +310,20 @@ Team* create_team(Championship* c, const char* name, const char* stadium, const 
     return team;
 }
 
+List* get_champ_teams(Championship* c) {
+    return c->list_teams;
+}
+
+void remove_team(List* L, Team* team) {
+    return List_remove(L, team);
+}
+
 void add_player(Team* team, char* name, unsigned int age, Position position) {
+    if (team->n_players >= 25) {
+        printf("O time já possui 25 jogadores. Não é possível adicionar mais.\n");
+        return;
+    }
+
     Player* player = (Player*)calloc(1, sizeof(Player));
     player->name = strdup(name);
     player->age = age;
@@ -309,16 +331,37 @@ void add_player(Team* team, char* name, unsigned int age, Position position) {
 
     initialize_stats(&(player->stats));
 
-    if (team->n_players < 25) {
-        team->players[team->n_players] = player;
-        team->n_players++;
+    team->players[team->n_players] = player;
+    team->n_players++;
+}
+
+void remove_player(Team* team, Player* p) {
+    int j;
+
+    for (j = 0; j < team->n_players; j++) {
+        if (team->players[j] == p) {
+            break;
+        }
     }
+
+    if (j == team->n_players) {
+        return;
+    }
+
+    free(team->players[j]);
+
+    for (int i = j; i < team->n_players - 1; i++) {
+        team->players[i] = team->players[i + 1];
+    }
+
+    team->n_players--;
 }
 
-void remove_team(List* L, Team* team) {
-    return List_remove(L, team);
-}
-
-List* get_champ_teams(Championship* c) {
-    return c->list_teams;
+Player* get_player(Team* team, const char* name) {
+    for (int i = 0; i < team->n_players; i++) {
+        if (strcmp(team->players[i]->name, name) == 0) {
+            return team->players[i];
+        }
+    }
+    return NULL;
 }
