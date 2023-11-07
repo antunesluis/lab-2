@@ -365,3 +365,21 @@ Player* get_player(Team* team, const char* name) {
     }
     return NULL;
 }
+
+Team* get_team(Championship* c, const char* name) {
+    Node* p = c->list_teams->begin;
+
+    while (p != NULL) {
+        Team* team = p->val;
+        if (strcmp(team->name, name) == 0) {
+            return team;
+        }
+        p = p->next;
+    }
+    return NULL;
+}
+
+void remove_team_by_name(Championship* c, char* name) {
+    Team* team = get_team(c, name);
+    remove_team(c, team);
+}

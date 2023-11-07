@@ -7,6 +7,11 @@
 
 #define BUFFER_SIZE 100
 
+void press_enter_continue() {
+    printf("\nPressione Enter para continuar...");
+    consume_newline();
+}
+
 void clear_terminal() {
     printf("\033[H\033[J"); // Sequência de escape ANSI para limpar o terminal
 }
@@ -72,6 +77,7 @@ Player* read_player_data(Team* team) {
     consume_newline();
 
     add_player(team, name_buffer, player_age, position);
+    printf("\nTime adicionado!!");
 }
 
 void menu_options() {
@@ -88,11 +94,30 @@ void menu_options() {
 }
 
 void print_team(Championship* c) {
-    printf("------------- LIST OF TEAMS -------------\n");
     clear_terminal();
+    printf("------------- LIST OF TEAMS -------------\n");
     list_print(get_champ_teams(c));
-    printf("Pressione Enter para continuar...");
-    consume_newline();
+    press_enter_continue();
+}
+
+void add_team(Championship* c) {
+    Team* team = read_team_data(c);
+    read_player_data(team);
+
+}
+
+void read_and_remove_team(Championship* c) {
+    char name_buffer[BUFFER_SIZE];
+    read_string("Digite o nome do time a ser removido: ", name_buffer, sizeof(name_buffer));
+    remove_team_by_name(c, name_buffer);
+}
+
+void read_add_player(Championship* c) {
+    char name_buffer[BUFFER_SIZE];
+    read_string("Digite o nome do time: ", name_buffer, sizeof(name_buffer));
+    Team* team = get_team(c, name_buffer);
+
+    read_player_data(team);
 }
 
 bool menu(Championship* c) {
@@ -109,8 +134,8 @@ bool menu(Championship* c) {
         case AddTeam:
             add_team(c);
             break;
-
         case DeleteTeam:
+            read_and_remove_team(c);
             break;
 
         case ShowTeams:
@@ -118,6 +143,7 @@ bool menu(Championship* c) {
             break;
 
         case AddPlayer:
+            read_add_player(c);
             break;
 
         case DeletePlayer:
@@ -129,13 +155,9 @@ bool menu(Championship* c) {
         default:
             break;
         }
+
+        press_enter_continue();
     } while (option != Exit);
 }
 
-void add_team(Championship* c) {
-    Team* t = read_team_data(c);
-    for (int i = 0; i < 3; i++) {
-        read_player_data(t);
-    }
-}
 
