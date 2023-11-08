@@ -73,6 +73,18 @@ List* list_create() {
     return L;
 }
 
+bool list_is_empty(const List* L) {
+    return L->size == 0;
+}
+
+void check_empty_list(const List* L, const char* function_name) {
+    if (list_is_empty(L)) {
+        fprintf(stderr, "ERROR in '%s'\n", function_name);
+        fprintf(stderr, "List is empty\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
 void list_destroy(List** L_ref) {
     List* L = *L_ref;
 
@@ -89,9 +101,6 @@ void list_destroy(List** L_ref) {
     *L_ref = NULL;
 }
 
-bool list_is_empty(const List* L) {
-    return L->size == 0;
-}
 
 void list_add_first(List* L, Team* val) {
     Node* p = node_crete(val);
@@ -238,14 +247,6 @@ void List_remove(List* L, Team* val) {
     free(val);
 }
 
-void check_empty_list(const List* L, const char* function_name) {
-    if (list_is_empty(L)) {
-        fprintf(stderr, "ERROR in '%s'\n", function_name);
-        fprintf(stderr, "List is empty\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
 size_t List_size(const List* L) {
     check_empty_list(L, "List_size");
     return L->size;
@@ -295,6 +296,10 @@ Championship* create_championship(unsigned int matches) {
     return c;
 }
 
+List* get_champ_teams(Championship* c) {
+    return c->list_teams;
+}
+
 Team* create_team(Championship* c, const char* name, const char* stadium, const char* city, const char* coach) {
     Team* team = (Team*)calloc(1, sizeof(Team));
     team->players = (Player**)calloc(25, sizeof(Player*));
@@ -310,16 +315,28 @@ Team* create_team(Championship* c, const char* name, const char* stadium, const 
     return team;
 }
 
-List* get_champ_teams(Championship* c) {
-    return c->list_teams;
+Team* get_team(Championship* c, const char* name) {
+    Node* p = c->list_teams->begin;
+
+    while (p != NULL) {
+        Team* team = p->val;
+        if (strcmp(team->name, name) == 0) {
+            return team;
+        }
+        p = p->next;
+    }
+    return NULL;
 }
 
-void remove_team(List* L, Team* team) {
-    return List_remove(L, team);
+void remove_team_by_name(Championship* c, char* name) {
+    Team* team = get_team(c, name);
+
+    List_remove(c->list_teams, team);
+    printf("\nTime Removido!!", team->name);
 }
 
 void add_player(Team* team, char* name, unsigned int age, Position position) {
-    if (team->n_players >= 25) {
+    if (team->n_players >= 25 || team == NULL) {
         printf("O time já possui 25 jogadores. Não é possível adicionar mais.\n");
         return;
     }
@@ -364,22 +381,4 @@ Player* get_player(Team* team, const char* name) {
         }
     }
     return NULL;
-}
-
-Team* get_team(Championship* c, const char* name) {
-    Node* p = c->list_teams->begin;
-
-    while (p != NULL) {
-        Team* team = p->val;
-        if (strcmp(team->name, name) == 0) {
-            return team;
-        }
-        p = p->next;
-    }
-    return NULL;
-}
-
-void remove_team_by_name(Championship* c, char* name) {
-    Team* team = get_team(c, name);
-    remove_team(c, team);
 }

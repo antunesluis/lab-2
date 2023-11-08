@@ -42,7 +42,7 @@ Championship* create_championship(unsigned int matches);
 void add_coach(Team* team, const char* name);
 void add_player(Team* team, char* name, unsigned int age, Position position);
 void remove_team(List* L, Team* team);
-void remove_team_by_name(Championship* c, char* name)
+void remove_team_by_name(Championship* c, char* name);
 void remove_player(Team* team, Player* p);
 List* get_champ_teams(Championship* c);
 Team* create_team(Championship* c, const char* name, const char* stadium, const char* city, const char* coach);

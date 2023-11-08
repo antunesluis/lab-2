@@ -7,9 +7,16 @@
 
 #define BUFFER_SIZE 100
 
-void press_enter_continue() {
-    printf("\nPressione Enter para continuar...");
-    consume_newline();
+void menu_options() {
+    printf("------------- TORNEIO -------------\n");
+    printf("Digite a ação desejada:\n");
+    printf("\t0. Adicionar Time\n");
+    printf("\t1. Apagar Time\n");
+    printf("\t2. Mostrar Times\n");
+    printf("\t3. Adicionar jogador a time existente\n");
+    printf("\t4. Apagar jogador de um time\n");
+    printf("\t6. Sair\n");
+    puts("");
 }
 
 void clear_terminal() {
@@ -19,6 +26,11 @@ void clear_terminal() {
 void consume_newline() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void press_enter_continue() {
+    printf("Pressione Enter para continuar...");
+    while (getchar() != '\n');
 }
 
 void read_string(const char* prompt, char* buffer, size_t buffer_size) {
@@ -69,9 +81,9 @@ Player* read_player_data(Team* team) {
     char name_buffer[BUFFER_SIZE];
     read_string("Digite o nome do jogador: ", name_buffer, sizeof(name_buffer));
 
-    int player_age;
+    unsigned int player_age;
     printf("Digite a idade do jogador: ");
-    scanf("%d", &player_age);
+    scanf("%u", &player_age);
 
     Position position = read_player_position();
     consume_newline();
@@ -80,18 +92,6 @@ Player* read_player_data(Team* team) {
     printf("\nTime adicionado!!");
 }
 
-void menu_options() {
-    printf("------------- TORNEIO -------------\n");
-    printf("Digite a ação desejada:\n");
-    printf("\t0. Adicionar Time\n");
-    printf("\t1. Apagar Time\n");
-    printf("\t2. Mostrar Times\n");
-    printf("\t3. Adicionar jogador a time existente\n");
-    printf("\t4. Apagar jogador de um time\n");
-    printf("\t5. Mostrar time relacionado a determinado jogador\n");
-    printf("\t6. Sair\n");
-    puts("");
-}
 
 void print_team(Championship* c) {
     clear_terminal();
@@ -117,7 +117,34 @@ void read_add_player(Championship* c) {
     read_string("Digite o nome do time: ", name_buffer, sizeof(name_buffer));
     Team* team = get_team(c, name_buffer);
 
-    read_player_data(team);
+    if (team != NULL) {
+        read_player_data(team);
+        return;
+    }
+    printf("\nTime inexistente!");
+}
+
+void read_delete_player(Championship* c) {
+    char player_buffer[BUFFER_SIZE];
+    read_string("Digite o nome do jogador: ", player_buffer, sizeof(player_buffer));
+
+    char team_buffer[BUFFER_SIZE];
+    read_string("Digite o nome do time: ", team_buffer, sizeof(team_buffer));
+
+    Team* team = get_team(c, team_buffer);
+    if (team == NULL) {
+        printf("\nTime Inexistente");
+        return;
+    }
+
+    Player* player = get_player(team, player_buffer);
+    if (player == NULL) {
+        printf("\nJogador não existe no time selecionado");
+        return;
+    }
+
+    remove_player(team, player);
+    printf("\nJogador removido!");
 }
 
 bool menu(Championship* c) {
@@ -147,12 +174,11 @@ bool menu(Championship* c) {
             break;
 
         case DeletePlayer:
-            break;
-
-        case ShowTeamByPlayer:
+            read_delete_player(c);
             break;
 
         default:
+            printf("\nOpção inválida");
             break;
         }
 
