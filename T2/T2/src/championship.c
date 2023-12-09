@@ -31,12 +31,13 @@ typedef struct _team {
     char* name;
     char* stadium;
     char* city;
-    bool eliminated;
 } Team;
 
 
 typedef struct _championship {
     List* list_teams;
+    unsigned int rounds;
+    unsigned int matches;
 } Championship;
 
 
@@ -134,106 +135,116 @@ void list_add_last(List* L, Team* val) {
     L->size++;
 }
 
-void print_team_info(const Team* team) {
-    printf("  Team Name: %s\n", team->name);
-    printf("  Stadium: %s\n", team->stadium);
-    printf("  City: %s\n", team->city);
-}
-
-void print_player_info(const Player* player, const char* positions[]) {
-    printf("\tNome: %s\n", player->name);
-    printf("\tPosicao: %s\n", positions[player->position]);
-    printf("\tIdade: %u\n", player->age);
-}
-
-void print_player_stats(const Player* player) {
-    printf("\tEstatisticas:\n");
-    printf("\t  - Gols Marcados: %u\n", player->stats.goals_scored);
-    printf("\t  - Cartões Amarelos: %u\n", player->stats.yellow_cards);
-    printf("\t  - Cartões Vermelhos: %u\n", player->stats.red_cards);
-    printf("\t  - Faltas Cometidas: %u\n", player->stats.fouls);
-}
-
 void list_print(const List* L) {
     Node* p = L->begin;
-    const char* positions[] = { "Goleiro", "Lateral Direito", "Lateral Esquerdo",
-                                "Defensor", "Meio-campista", "Atacante" };
 
     printf("Numero de times: %lu\n", L->size);
-    puts("");
 
     while (p != NULL) {
         Team* team = p->val;
-        print_team_info(team);
+        printf("  Team Name: %s\n", team->name);
+        printf("  Stadium: %s\n", team->stadium);
+        printf("  City: %s\n", team->city);
 
         if (team->n_players > 0) {
             printf("  Players:\n");
             for (unsigned int i = 0; i < team->n_players; i++) {
                 Player* player = team->players[i];
-                print_player_info(player, positions);
-                print_player_stats(player);
+                printf("    Player Name: %s\n", player->name);
+                printf("    Position: %d\n", player->position);
+                printf("    Age: %u\n", player->age);
                 puts("");
             }
         }
 
         p = p->next;
         puts("");
+        printf("|\nV\n\n");
     }
 
     if (L->end == NULL) {
         printf("List is empty\n");
     }
+    else {
+        printf("L->end = %s\n", L->end->val->name);
+    }
     puts("");
 }
 
-bool List_remove(List* L, Team* val) {
-    if (list_is_empty(L)) {
-        Node* p = L->begin;
-        // caso 1: o elemento está na cabeça da lista
-        if (L->begin->val == val) {
-            L->begin = p->next;
 
-            // a lista possui apenas um único elemento
-            if (L->end == p) {
-                L->end = NULL;
-            }
-            // a lista possui mais de um elemento
-            else {
-                L->begin->prev = NULL;
-            }
+void list_inverted_print(const List* L) {
+    Node* p = L->end;
 
-            free(p);
-            L->size--;
-            return true;
-        }
-        else {
-            p = p->next;
+    printf("\nSize: %lu\n", L->size);
+    printf("List of Teams (Inverted Order):\n");
 
-            while (p != NULL) {
-                if (p->val == val) {
-                    p->prev->next = p->next;
-                    // caso 3: o elemento está no final da lista
-                    if (L->end == p) {
-                        L->end = p->prev;
-                    }
-                    // caso 2: o elemento está no meio da lista
-                    else {
-                        p->next->prev = p->prev;
-                    }
+    while (p != NULL) {
+        Team* team = p->val;
+        printf("Team Name: %s\n", team->name);
+        printf("Stadium: %s\n", team->stadium);
+        printf("City: %s\n", team->city);
 
-                    free(p);
-                    p = NULL;
-                    L->size--;
-                }
-                else {
-                    p = p->next;
-                }
-            }
-        }
-        free(val);
-        return true;
+        p = p->prev;
+        puts("");
     }
-    return false;
+
+    if (L->end == NULL) {
+        printf("List is empty\n");
+    }
+    else {
+        printf("L->begin = %s\n", L->begin->val->name);
+    }
+    puts("");
+}
+
+void List_remove(List* L, Team* val) {
+    if (list_is_empty(L)) {
+        return;
+    }
+
+    Node* p = L->begin;
+
+    // caso 1: o elemento está na cabeça da lista
+    if (L->begin->val == val) {
+        L->begin = p->next;
+
+        // a lista possui apenas um único elemento
+        if (L->end == p) {
+            L->end = NULL;
+        }
+        // a lista possui mais de um elemento
+        else {
+            L->begin->prev = NULL;
+        }
+
+        free(p);
+        L->size--;
+    }
+    else {
+        p = p->next;
+
+        while (p != NULL) {
+            if (p->val == val) {
+                p->prev->next = p->next;
+                // caso 3: o elemento está no final da lista
+                if (L->end == p) {
+                    L->end = p->prev;
+                }
+                // caso 2: o elemento está no meio da lista
+                else {
+                    p->next->prev = p->prev;
+                }
+
+                free(p);
+                p = NULL;
+                L->size--;
+            }
+            else {
+                p = p->next;
+            }
+        }
+    }
+    free(val);
 }
 
 size_t List_size(const List* L) {
@@ -277,8 +288,10 @@ void initialize_stats(Statistics* stats) {
     stats->fouls = 0;
 }
 
-Championship* create_championship() {
+Championship* create_championship(unsigned int matches) {
     Championship* c = (Championship*)calloc(1, sizeof(Championship));
+    c->matches = matches;
+    c->rounds = 5; //log2(matches);
     c->list_teams = list_create();
     return c;
 }
@@ -295,7 +308,6 @@ Team* create_team(Championship* c, const char* name, const char* stadium, const 
     team->city = strdup(city);
     team->coach = strdup(coach);
     team->n_players = 0;
-    team->eliminated = false;
 
     initialize_stats(&(team->stats));
     list_add_last(c->list_teams, team);
@@ -303,9 +315,8 @@ Team* create_team(Championship* c, const char* name, const char* stadium, const 
     return team;
 }
 
-Team* get_team(Championship* C, const char* name) {
-
-    Node* p = C->list_teams->begin;
+Team* get_team(Championship* c, const char* name) {
+    Node* p = c->list_teams->begin;
 
     while (p != NULL) {
         Team* team = p->val;
@@ -317,25 +328,17 @@ Team* get_team(Championship* C, const char* name) {
     return NULL;
 }
 
-bool remove_team_by_name(Championship* C, char* name) {
-    if (!list_is_empty(C->list_teams)) {
-        Team* team = get_team(C, name);
+void remove_team_by_name(Championship* c, char* name) {
+    Team* team = get_team(c, name);
 
-        if (team != NULL) {
-            List_remove(C->list_teams, team);
-            printf("\nTime %s Removido!!\n", team->name);
-            return true;
-        }
-    }
-
-    return false;
+    List_remove(c->list_teams, team);
+    printf("\nTime Removido!!", team->name);
 }
 
-
-bool add_player(Team* team, char* name, unsigned int age, Position position) {
+void add_player(Team* team, char* name, unsigned int age, Position position) {
     if (team->n_players >= 25 || team == NULL) {
         printf("O time já possui 25 jogadores. Não é possível adicionar mais.\n");
-        return false;
+        return;
     }
 
     Player* player = (Player*)calloc(1, sizeof(Player));
@@ -347,42 +350,28 @@ bool add_player(Team* team, char* name, unsigned int age, Position position) {
 
     team->players[team->n_players] = player;
     team->n_players++;
-    return true;
 }
 
+void remove_player(Team* team, Player* p) {
+    int j;
 
-bool remove_player(Team* team, Player* p) {
-    if (team->players != NULL) {
-        int j;
-
-        for (j = 0; j < team->n_players; j++) {
-            if (team->players[j] == p) {
-                break;
-            }
+    for (j = 0; j < team->n_players; j++) {
+        if (team->players[j] == p) {
+            break;
         }
-
-        if (j == team->n_players) {
-            return false;
-        }
-
-        free(team->players[j]);
-
-        for (int i = j; i < team->n_players - 1; i++) {
-            team->players[i] = team->players[i + 1];
-        }
-
-        team->n_players--;
-        return true;
     }
 
-    return false;
-}
+    if (j == team->n_players) {
+        return;
+    }
 
-void add_player_stats(Player* P, int goals_scored, int yellow_cards, int red_cards, int fouls) {
-    P->stats.goals_scored = goals_scored;
-    P->stats.yellow_cards = yellow_cards;
-    P->stats.red_cards = red_cards;
-    P->stats.fouls = fouls;
+    free(team->players[j]);
+
+    for (int i = j; i < team->n_players - 1; i++) {
+        team->players[i] = team->players[i + 1];
+    }
+
+    team->n_players--;
 }
 
 Player* get_player(Team* team, const char* name) {

@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "linked_list.h": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c",
+        "football_league.h": "c",
+        "stddef.h": "c",
+        "cmath": "c",
+        "string.h": "c",
+        "typeinfo": "c",
+        "read_teams.h": "c",
+        "championship.h": "c"
+    }
+}

@@ -13,13 +13,13 @@ typedef enum {
     ShowTeams,
     AddPlayer,
     DeletePlayer,
-    AddStatsPlayer,
+    ShowTeamByPlayer,
     Exit
 } MenuOption;
 
-void menu();
+bool menu();
 Team* read_team_data(Championship* c);
-void read_player_data();
+Player* read_player_data();
 int read_player_position();
 void add_team(Championship* c);
 
