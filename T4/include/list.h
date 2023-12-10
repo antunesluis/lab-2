@@ -1,0 +1,34 @@
+#ifndef LIST_H
+#define LIST_H
+
+#include <stdbool.h>
+#include <stddef.h>
+
+typedef struct _doubly_node DoubliNode, Node;
+typedef struct _doubly_linked_list DoublyLinkedList, List;
+
+Node* Node_crete(int val);
+
+List* List_create();
+void List_destroy(List** L_ref);
+bool List_is_empty(const List* L);
+size_t List_size(const List* L);
+
+void List_add_first(List* L, int val);
+void List_add_last(List* L, int val);
+
+void List_print(const List* L);
+void List_inverted_print(const List* L);
+
+void List_remove(List* L, int val);
+void List_remove_last(List* L);
+void List_remove_first(List* L);
+void remove_at(List* list, size_t position);
+
+int List_get_first_val(const List* L);
+int List_get_last_val(const List* L);
+int List_get_val(const List* L, int index);
+
+size_t find_node_position(List* L, int destination);
+
+#endif
