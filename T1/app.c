@@ -53,4 +53,7 @@ int main()
     destroy_board(&minefield);
 
     return 0;
+
+    //dasdsdadsa
+
 }
